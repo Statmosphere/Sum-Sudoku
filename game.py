@@ -1,6 +1,6 @@
 from random import random, randrange
 
-def play():
+def getGrid():
     grid = []
     possibilites = []
     for i in range(81):
@@ -32,12 +32,12 @@ def play():
                 if possibilites[position].count(j+1) > 0:
                     possibilites[position].remove(j+1)
         else:
-            for j in range(81):
-                if grid[j] == 0 and len(possibilites[j]) == 0:
-                    print("Error " + str(j))
-    for i in range(9):
-        if i % 3 == 0:
-            print("- - - - - - - - - - - - -")
-        print("| " + str(grid[i*9]) + " " + str(grid[i*9+1]) + " " + str(grid[i*9+2]) + " | " + str(grid[i*9+3]) + " " + str(grid[i*9+4]) + " " + str(grid[i*9+5]) + " | " + str(grid[i*9+6]) + " " + str(grid[i*9+7]) + " " + str(grid[i*9+8]) + " |")
-
-play()
+            grid = getGrid()
+            break
+    return grid
+            
+solution = getGrid()
+for i in range(9):
+    if i % 3 == 0:
+        print("- - - - - - - - - - - - -")
+    print("| " + str(solution[i*9]) + " " + str(solution[i*9+1]) + " " + str(solution[i*9+2]) + " | " + str(solution[i*9+3]) + " " + str(solution[i*9+4]) + " " + str(solution[i*9+5]) + " | " + str(solution[i*9+6]) + " " + str(solution[i*9+7]) + " " + str(solution[i*9+8]) + " |")
