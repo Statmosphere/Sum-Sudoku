@@ -118,7 +118,7 @@ def partition():
     return designations
             
 puzzle = GraphWin("Sum Sudoku", 500, 500)
-puzzle.setCoords(0, 0, 9, 9)
+puzzle.setCoords(0, -1, 9, 9)
 solution = getGrid()
 grouping = partition()
 singles = []
@@ -148,17 +148,90 @@ for i in range(len(grouping)):
     box = Rectangle(Point(i%9, 9-i//9), Point(i%9+1, 8-i//9))
     if grouping[i] == 1:
         box.setFill(color_rgb(255, 0, 0))
+        box.setOutline(color_rgb(255, 0, 0))
     elif grouping[i] == 2:
         box.setFill(color_rgb(0, 255, 0))
+        box.setOutline(color_rgb(0, 255, 0))
     elif grouping[i] == 3:
         box.setFill(color_rgb(0, 0, 255))
+        box.setOutline(color_rgb(0, 0, 255))
     elif grouping[i] == 4:
         box.setFill(color_rgb(255, 255, 0))
+        box.setOutline(color_rgb(255, 255, 0))
     elif grouping[i] == 5:
         box.setFill(color_rgb(255, 0, 255))
+        box.setOutline(color_rgb(255, 0, 255))
     else:
         box.setFill(color_rgb(0, 255, 255))
+        box.setOutline(color_rgb(0, 255, 255))
     box.draw(puzzle)
+    cornerText = True
+    if i // 9 != 0:
+        if grouping[i-9] == grouping[i]:
+            cornerText = False
+        else:
+            checkL = i+1
+            if checkL < 81:
+                while(grouping[i] == grouping[checkL] and i//9 == checkL//9 and checkL//9 != 0):
+                    if grouping[i] == grouping[checkL-9]:
+                        cornerText = False
+                    checkL += 1
+                    if checkL >= 81:
+                        break
+    if cornerText and i % 9 != 0:
+        if grouping[i-1] == grouping[i]:
+            cornerText = False
+    if cornerText:
+        total = solution[i]
+        inEquation = [i]
+        for j in range(i+1, len(grouping)):
+            if grouping[i] == grouping[j]:
+                for k in range(len(inEquation)):
+                    if (j == inEquation[k]+1 and i%9 != 8) or j == inEquation[k]+9:
+                        total += solution[j]
+                        inEquation.append(j)
+                        if j == inEquation[k]+9:
+                            goBack = j-1
+                            while(grouping[j] == grouping[goBack] and goBack//9 == j//9 and inEquation.count(goBack) == 0):
+                                total += solution[goBack]
+                                inEquation.append(goBack)
+                                goBack -= 1
+                        break
+        cT = Text(Point(i%9+0.15, 8.85-i//9), str(total))
+        cT.setSize(8)
+        cT.draw(puzzle)
+for i in range(1, 3):
+    line = Line(Point(i*3, 0), Point(i*3, 9))
+    line.setWidth(2)
+    line.draw(puzzle)
+    line = Line(Point(0, i*3), Point(9, i*3))
+    line.setWidth(2)
+    line.draw(puzzle)
+message = Text(Point(4.5, -0.5), "Click on the window to show the solution!")
+message.setStyle('bold')
+message.setSize(16)
+message.draw(puzzle)
+cursor = Rectangle(Point(0, 8), Point(1, 9))
+cursor.setOutline(color_rgb(191, 191, 191))
+cursor.draw(puzzle)
+coords = [0, 8]
+while(puzzle.checkMouse() == None):
+    direction = puzzle.checkKey()
+    if direction == "Right" and coords[0] < 8:
+        cursor.move(1, 0)
+        coords[0] += 1
+    elif direction == "Down" and coords[1] > 0:
+        cursor.move(0, -1)
+        coords[1] -= 1
+    elif direction == "Left" and coords[0] > 0:
+        cursor.move(-1, 0)
+        coords[0] -= 1
+    elif direction == "Up" and coords[1] < 8:
+        cursor.move(0, 1)
+        coords[1] += 1
+cursor.undraw()
+message.setText("This is the solution!")
+for i in range(len(solution)):
     number = Text(Point(i%9+0.5, 8.5-i//9), str(solution[i]))
     number.draw(puzzle)
 puzzle.getMouse()
