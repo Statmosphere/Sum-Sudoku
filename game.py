@@ -187,7 +187,7 @@ for i in range(len(grouping)):
         for j in range(i+1, len(grouping)):
             if grouping[i] == grouping[j]:
                 for k in range(len(inEquation)):
-                    if (j == inEquation[k]+1 and i%9 != 8) or j == inEquation[k]+9:
+                    if (j == inEquation[k]+1 and i%9 <= j%9) or j == inEquation[k]+9:
                         total += solution[j]
                         inEquation.append(j)
                         if j == inEquation[k]+9:
@@ -215,23 +215,36 @@ cursor = Rectangle(Point(0, 8), Point(1, 9))
 cursor.setOutline(color_rgb(191, 191, 191))
 cursor.draw(puzzle)
 coords = [0, 8]
-while(puzzle.checkMouse() == None):
-    direction = puzzle.checkKey()
-    if direction == "Right" and coords[0] < 8:
+display = []
+for i in range(len(solution)):
+    display.append(Text(Point(i%9+0.5, 8.5-i//9), ""))
+    display[i].draw(puzzle)
+solved = False
+while(puzzle.checkMouse() == None and not solved):
+    key = puzzle.checkKey()
+    if key == "Right" and coords[0] < 8:
         cursor.move(1, 0)
         coords[0] += 1
-    elif direction == "Down" and coords[1] > 0:
+    elif key == "Down" and coords[1] > 0:
         cursor.move(0, -1)
         coords[1] -= 1
-    elif direction == "Left" and coords[0] > 0:
+    elif key == "Left" and coords[0] > 0:
         cursor.move(-1, 0)
         coords[0] -= 1
-    elif direction == "Up" and coords[1] < 8:
+    elif key == "Up" and coords[1] < 8:
         cursor.move(0, 1)
         coords[1] += 1
+    elif key != "0" and key.isdigit():
+        display[(8-coords[1])*9+coords[0]].setText(key)
+        solved == True
+        for i in range(len(display)):
+            if str(solution[i]) != display[i].getText():
+                solved = False
+                break
+    elif key == "BackSpace":
+        display[(8-coords[1])*9+coords[0]].setText("")
 cursor.undraw()
 message.setText("This is the solution!")
 for i in range(len(solution)):
-    number = Text(Point(i%9+0.5, 8.5-i//9), str(solution[i]))
-    number.draw(puzzle)
+    display[i].setText(solution[i])
 puzzle.getMouse()
