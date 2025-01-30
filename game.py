@@ -216,8 +216,15 @@ cursor.setOutline(color_rgb(191, 191, 191))
 cursor.draw(puzzle)
 coords = [0, 8]
 display = []
+locks = []
 for i in range(len(solution)):
-    display.append(Text(Point(i%9+0.5, 8.5-i//9), ""))
+    if random() < 0.1:
+        display.append(Text(Point(i%9+0.5, 8.5-i//9), str(solution[i])))
+        display[i].setStyle('bold')
+        locks.append(True)
+    else:
+        display.append(Text(Point(i%9+0.5, 8.5-i//9), ""))
+        locks.append(False)
     display[i].draw(puzzle)
 solved = False
 while(puzzle.checkMouse() == None and not solved):
@@ -234,17 +241,19 @@ while(puzzle.checkMouse() == None and not solved):
     elif key == "Up" and coords[1] < 8:
         cursor.move(0, 1)
         coords[1] += 1
-    elif key != "0" and key.isdigit():
+    elif key != "0" and key.isdigit() and not locks[(8-coords[1])*9+coords[0]]:
         display[(8-coords[1])*9+coords[0]].setText(key)
-        solved == True
-        for i in range(len(display)):
+        solved = True
+        for i in range(len(solution)):
             if str(solution[i]) != display[i].getText():
                 solved = False
-                break
-    elif key == "BackSpace":
+    elif key == "BackSpace" and not locks[(8-coords[1])*9+coords[0]]:
         display[(8-coords[1])*9+coords[0]].setText("")
 cursor.undraw()
-message.setText("This is the solution!")
+if solved:
+    message.setText("Congratulations! You solved the puzzle!")
+else:
+    message.setText("This is the solution!")
 for i in range(len(solution)):
     display[i].setText(solution[i])
 puzzle.getMouse()
